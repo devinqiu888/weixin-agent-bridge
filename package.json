@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "wrangler dev",
-    "types": "wrangler types",
+    "types": "wrangler types --strict-vars=false",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test test/*.test.ts",
     "check": "npm run typecheck && npm test",
@@ -24,5 +24,30 @@
   },
   "dependencies": {
     "qrcode": "1.5.4"
+  },
+  "cloudflare": {
+    "bindings": {
+      "APP_ORIGIN": {
+        "description": "Your deployed Worker HTTPS origin, without /mcp or trailing slash. Replace localhost before connecting ChatGPT. / 部署后的 HTTPS 根地址，不能保留 localhost。"
+      },
+      "BRIDGE_TOKEN": {
+        "description": "Generate a unique secret with openssl rand -hex 32. Keep it private; do not use the example value. / 生成独立随机管理密钥，勿使用示例值。"
+      },
+      "EVENTS_DISCOVERY_ENABLED": {
+        "description": "Set true to expose message.created to ChatGPT; delivery still requires trusted CALLBACK_HOSTS. / 设为 true 开启事件发现。"
+      },
+      "CALLBACK_HOSTS": {
+        "description": "Exact trusted event callback hosts, comma-separated. The first ChatGPT test used connectors.api.openai.com; verify for your own client. No wildcards. / 核实后填写精确回调主机。"
+      },
+      "OAUTH_REDIRECT_URIS": {
+        "description": "Exact ChatGPT OAuth redirect URIs. Keep the stable default; add only a verified redirect from your own installation. / 保留稳定回调，只添加自身核验的 URI。"
+      },
+      "ACCOUNTS": {
+        "description": "Private Weixin binding, message queue and event subscriptions. Created in your account. / 独立微信绑定与消息存储。"
+      },
+      "OAUTH": {
+        "description": "Private OAuth grant and token-hash storage. Created in your account. / 独立 OAuth 授权存储。"
+      }
+    }
   }
 }

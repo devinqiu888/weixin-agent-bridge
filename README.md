@@ -8,6 +8,14 @@ Weixin Agent Bridge connects messages from your own Weixin ClawBot account to a 
 
 The bridge does not call a model API or require an OpenAI API key. Model execution happens in your compatible ChatGPT client, whose availability and permissions are controlled by OpenAI. This is an experimental, single-owner project—not a multi-tenant hosted service or an officially endorsed integration.
 
+## Deploy your own copy
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/devinqiu888/weixin-agent-bridge)
+
+Click the button to start Cloudflare’s guided repository-copy and deployment flow in **your own GitHub and Cloudflare accounts**. Your deployment gets separate storage and credentials; the author’s binding and conversations are not copied.
+
+After deployment, configure your public `APP_ORIGIN`, a unique management secret, and trusted callback settings, then complete ChatGPT OAuth and scan with your own Weixin account. This is a guided deployment entry point, not zero-configuration account authorization. See the [one-click deployment guide](docs/DEPLOY.md).
+
 ## How it works
 
 ```mermaid

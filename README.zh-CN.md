@@ -10,6 +10,14 @@ Weixin Agent Bridge 把绑定账号本人发给微信 ClawBot 的文字消息接
 
 这是一个供个人自行部署的实验性开源项目，当前每个部署只服务一个账号，不是多用户托管平台，也不是腾讯或 OpenAI 官方产品。
 
+## 一键部署自己的同款
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/devinqiu888/weixin-agent-bridge)
+
+点击按钮，在**你自己的 GitHub 和 Cloudflare 账号**中复制仓库并创建独立部署。你的存储、密钥和微信绑定独立，不会复制作者的账号或聊天记录。
+
+部署后需配置实际 `APP_ORIGIN`、独立管理密钥和可信回调，再完成 ChatGPT OAuth 与本人微信扫码。一键按钮简化部署，账号授权仍由你完成。详见 [一键部署指南](docs/DEPLOY.md)。
+
 ## 工作方式
 
 ```text
