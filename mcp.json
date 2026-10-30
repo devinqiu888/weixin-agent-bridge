@@ -1,0 +1,22 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "weixin": {
+      "type": "streamable-http",
+      "url": "https://YOUR-WORKER.workers.dev/mcp",
+      "extensions": {
+        "com.openai": {
+          "auth": {
+            "type": "oauth",
+            "client": {
+              "mode": "dcr"
+            },
+            "baseScopes": [
+              "weixin:bridge"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

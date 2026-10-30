@@ -1,0 +1,28 @@
+{
+  "name": "weixin-agent-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "wrangler dev",
+    "types": "wrangler types",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test test/*.test.ts",
+    "check": "npm run typecheck && npm test",
+    "build": "wrangler deploy --dry-run",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "@types/qrcode": "1.5.6",
+    "esbuild": "0.28.2",
+    "miniflare": "5.20261023.3-beta",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "wrangler": "4.156.0"
+  },
+  "dependencies": {
+    "qrcode": "1.5.4"
+  }
+}

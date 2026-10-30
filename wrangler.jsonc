@@ -1,0 +1,7 @@
+{
+ "name":"weixin-agent-bridge", "main":"src/index.ts", "compatibility_date":"2026-10-30",
+ "durable_objects":{"code_update_strategy":{"mode":"immediate"},"bindings":[{"name":"ACCOUNTS","class_name":"WeixinAccount"},{"name":"OAUTH","class_name":"OAuthState"}]},
+ "migrations":[{"tag":"v1","new_sqlite_classes":["WeixinAccount"]},{"tag":"v2","new_sqlite_classes":["OAuthState"]}],
+ "observability":{"enabled":true,"traces":{"enabled":true}},
+ "vars":{"APP_ORIGIN":"http://localhost:8787"}
+}

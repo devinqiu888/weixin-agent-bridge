@@ -1,0 +1,20 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "weixin-cloud-bridge",
+  "version": "0.1.0",
+  "description": "Self-hosted single-owner Weixin bridge for ChatGPT dots using OAuth and MCP Events. Experimental; not directory-approved.",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Weixin Cloud Bridge (Prototype)",
+        "shortDescription": "Self-hosted Weixin receive and reply tools",
+        "longDescription": "Connect your own Weixin ClawBot to a ChatGPT dot through Cloudflare Workers and Durable Objects. OAuth authentication, event-triggered text processing, and replies to the original conversation. Experimental single-owner deployment.",
+        "category": "Productivity",
+        "capabilities": [
+          "Read",
+          "Write"
+        ]
+      }
+    }
+  }
+}
