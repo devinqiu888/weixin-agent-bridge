@@ -1,0 +1,4 @@
+interface:
+  display_name: "Deploy Weixin Bridge / 部署微信桥接"
+  short_description: "Deploy your own Weixin-to-ChatGPT bridge on Cloudflare"
+  default_prompt: "Use $deploy-weixin-bridge to deploy my own Weixin ClawBot-to-ChatGPT dot bridge on Cloudflare and tell me when to authorize or scan."

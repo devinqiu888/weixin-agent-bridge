@@ -10,6 +10,10 @@ Weixin Agent Bridge 把绑定账号本人发给微信 ClawBot 的文字消息接
 
 这是一个供个人自行部署的实验性开源项目，当前每个部署只服务一个账号，不是多用户托管平台，也不是腾讯或 OpenAI 官方产品。
 
+## 用 Skill 一句话发起部署
+
+安装仓库内的 [`deploy-weixin-bridge` skill](skills/deploy-weixin-bridge/SKILL.md)，然后告诉 agent：「用这个 skill 帮我部署自己的微信桥接」。它会准备配置、执行部署和检查，并在需要本人授权或扫码时提示。[安装与使用说明](docs/SKILL.md)。
+
 ## 一键部署自己的同款
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/devinqiu888/weixin-agent-bridge)
