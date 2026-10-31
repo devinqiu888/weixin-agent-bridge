@@ -2,85 +2,96 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-**Chat with your ChatGPT dot from Weixin (WeChat) ClawBot, using a self-hosted Cloudflare bridge.**
+## 1. Purpose
 
-Weixin Agent Bridge connects messages from your own Weixin ClawBot account to a ChatGPT dot. It runs on Cloudflare Workers and SQLite-backed Durable Objects: no VPS, local daemon, or full OpenClaw installation is required for the bridge. Incoming messages are delivered through MCP Events, and the dot can reply to the original Weixin conversation through an authenticated MCP tool.
+This project aims to use the existing ClawBot interface in the Weixin (WeChat) client, bridge it through Cloudflare, and connect to ChatGPT Pro's Dot service through MCP, enabling conversations with dot and file transfers directly within Weixin.
 
-The bridge does not call a model API or require an OpenAI API key. Model execution happens in your compatible ChatGPT client, whose availability and permissions are controlled by OpenAI. This is an experimental, single-owner project—not a multi-tenant hosted service or an officially endorsed integration.
+It is designed for personal self-hosting: each user deploys the bridge in their own Cloudflare account and connects their own Weixin and ChatGPT accounts. **Basic text conversations are working; file transfer remains a planned feature.** Availability of Dot, plugins, and event capabilities depends on the features enabled for the user's account.
 
-## Deploy with an agent skill
+## 2. Project progress
 
-Install the included [`deploy-weixin-bridge` skill](skills/deploy-weixin-bridge/SKILL.md), then ask your agent to deploy your own copy. The skill automates preparation and guides deployment, OAuth, QR binding, and verification; login and consent remain yours. [Installation and invocation guide](docs/SKILL.md).
+**The initial implementation is working, and the project is still being refined as a prototype.**
 
-## Deploy your own copy
+Implemented:
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/devinqiu888/weixin-agent-bridge)
+- Weixin QR-code binding and a ChatGPT OAuth connection.
+- Weixin text messages bridged through Cloudflare, automatically triggering dot through MCP Events.
+- Replies sent back to the original Weixin conversation through MCP tools.
+- Single-owner message deduplication, send-state tracking, and skill-assisted deployment.
 
-Click the button to start Cloudflare’s guided repository-copy and deployment flow in **your own GitHub and Cloudflare accounts**. Your deployment gets separate storage and credentials; the author’s binding and conversations are not copied.
+A live test on October 30, 2026 completed four automatically triggered text messages and successful replies, with the user confirming receipt in Weixin. Estimated event-to-send times were 34–95 seconds in that test; these execution-record estimates do not guarantee instant replies. See the [validation record](docs/VALIDATION.md).
 
-After deployment, configure your public `APP_ORIGIN`, a unique management secret, and trusted callback settings, then complete ChatGPT OAuth and scan with your own Weixin account. This is a guided deployment entry point, not zero-configuration account authorization. See the [one-click deployment guide](docs/DEPLOY.md).
+Next priorities:
 
-## How it works
+- **Improve encryption and privacy management on the Worker side to prevent data exposure.** This includes application-level encryption of stored messages and files, key management and rotation, access controls, log redaction, and data retention and deletion.
+- **Implement file transfer.** Add file reception, delivery, access controls, and cleanup. A complete file-transfer path is not yet implemented.
+- **Improve reliability and deployment usability.** Validate long-running subscription renewal, failure recovery, latency, and independent onboarding by other users.
+
+OAuth, management secrets, and callback signatures are already present. These protections do not mean application-level message encryption, end-to-end encryption, or a production security audit has been completed. The current version supports single-owner self-hosting only. Read the [security and data notes](docs/SECURITY.md) before use.
+
+## 3. How it currently works
 
 ```mermaid
 flowchart LR
     W[Weixin ClawBot] -->|iLink long polling| C[Cloudflare Worker + Durable Objects]
-    C -->|Signed MCP Events webhook| D[ChatGPT dot]
-    D -->|wechat_reply via MCP| C
+    C -->|Signed MCP Events webhook| D[ChatGPT Dot]
+    D -->|MCP tool: wechat_reply| C
     C -->|Reply to original conversation| W
 ```
 
-The Worker handles Weixin polling, durable message storage, OAuth, webhook delivery, and replies. The model does not need to repeatedly poll for new messages.
+1. The user sends a text message in their Weixin ClawBot conversation.
+2. Cloudflare receives it through iLink long polling. Durable Objects store the binding, message state, and event queue.
+3. The bridge emits a `message.created` event to trigger the connected dot, without requiring the model to poll repeatedly.
+4. The dot calls `wechat_reply`, and the bridge uses the original message identifier to send the reply to the same Weixin conversation.
 
-## Features
+The bridge infrastructure runs entirely on Cloudflare, with no VPS, local daemon, or full OpenClaw installation required. ChatGPT performs model inference; the bridge does not call a model API or require an OpenAI API key. Cloudflare resources and ChatGPT usage may still incur costs.
 
-- QR-code binding for one Weixin owner per deployment.
-- Text messages from the bound owner only; replies target an existing message, not an arbitrary recipient.
-- OAuth with PKCE and dynamic client registration for ChatGPT connections.
-- MCP tools: `wechat_status`, `wechat_receive`, `wechat_reply`, and `wechat_disconnect`.
-- `message.created` subscriptions with signed callback verification and a persistent delivery queue.
-- Message deduplication and durable send reservations; uncertain sends are not retried automatically.
-- Administrator diagnostics that report counts without recording message content in diagnostic fields.
+The diagram shows the currently validated text flow. The file-transfer flow will be documented when implemented.
 
-## Validation status
+## 4. Skill installation and one-click deployment
 
-On October 30, 2026, a live single-account test completed **four automatically triggered text conversations**. The dot reported four successful `wechat_reply` calls, the bridge recorded four sent replies, and the user confirmed receiving replies in Weixin.
+“One-click deployment” means having an agent perform the preparation, configuration, deployment, and checks it can execute. Cloudflare/GitHub sign-in, ChatGPT authorization, and Weixin QR scanning still require the user.
 
-Observed time from event creation to successful send was approximately **34–95 seconds** in that small test. These are execution-record estimates, not a benchmark, delivery guarantee, or promise of instant replies. Images, voice, files, multi-user operation, and long-term reliability have not been validated.
+### Step 1: Prepare your accounts and tools
 
-## Get started
+Use your own Cloudflare, GitHub, and Weixin ClawBot accounts, plus a ChatGPT Pro account with Dot and the required MCP capabilities enabled. Use a Codex environment that supports skills; compatibility with other agents has not been individually validated.
 
-Requires Node.js 22.13+, npm, a Cloudflare account with Workers and SQLite Durable Objects available, a compatible Weixin ClawBot account, and a ChatGPT client/account that supports custom OAuth MCP connections and MCP Events.
+### Step 2: Install the skill
 
-```sh
-git clone https://github.com/devinqiu888/weixin-agent-bridge.git
-cd weixin-agent-bridge
-npm ci
-npm run check
-npm run build
+Send this instruction to Codex:
+
+```text
+Use $skill-installer to install this deployment skill:
+https://github.com/devinqiu888/weixin-agent-bridge/tree/main/skills/deploy-weixin-bridge
 ```
 
-`npm run build` is a dry run; it does not deploy. Follow the [deployment guide](docs/INSTALL.md) to configure your Worker origin, secrets, OAuth redirects, and trusted event callback hosts. Then install the MCP connection in ChatGPT, bind Weixin by scanning a QR code, and ask your dot to subscribe to `message.created` and reply to the original conversation.
+Restart Codex after installation so it discovers the skill. A command-line installation option is available in the [skill installation guide](docs/SKILL.md).
 
-For local development, copy `.dev.vars.example` to `.dev.vars`, supply your own random management token, and run `npm run dev`. Never commit `.dev.vars`.
+### Step 3: Start deployment
 
-## Scope and limitations
+```text
+Use $deploy-weixin-bridge to deploy my own Weixin ClawBot-to-ChatGPT Dot bridge on Cloudflare,
+complete the ChatGPT connection and Weixin binding, and verify a text round trip.
+Complete the configuration, deployment, and checks you can perform; tell me when I need to sign in, authorize, or scan.
+Check any existing same-name service before making changes.
+```
 
-- **Single owner:** one Weixin binding and one active OAuth connection/event subscription per deployment. A new authorization replaces the previous grant.
-- **Controlled callback destinations:** event delivery is disabled until trusted exact callback hosts are configured. The allowlist is not a complete implementation of DNS-rebinding-resistant IP pinning. Do not expose this as an arbitrary-client webhook relay.
-- **Data retention:** old pending messages are cleaned up during polling. Sent and uncertain records remain for deduplication until disconnect. Review the [security and data notes](docs/SECURITY.md) before using real conversations.
-- **Client-dependent:** connecting an MCP server alone does not make every ChatGPT client accept background events. Platform access, task execution, and approval rules still apply.
-- **Costs:** no model API billing is initiated by this bridge, but Cloudflare usage and your ChatGPT access may incur costs. Continuous long polling keeps a Durable Object active; do not assume it fits a free allowance.
-- **Experimental release:** the source is open, but the plugin has not been submitted to or approved for an official directory.
+The skill helps identify the target account, prepare a separate management secret, deploy the Worker and Durable Objects, and verify the connection in stages. Each user gets their own deployment and credentials; the author's Weixin binding and conversations are not copied.
 
-## Documentation
+### Step 4: Authorize, scan, and verify
 
-- [中文介绍](README.zh-CN.md)
-- [Deployment and OAuth setup](docs/INSTALL.md)
-- [Architecture and roadmap draft](docs/PROJECT.md)
-- [Security and data handling](docs/SECURITY.md)
-- [Validation record](docs/VALIDATION.md)
+Follow the agent's prompts to complete ChatGPT OAuth and scan with your own Weixin account. Once the event subscription is established, send a test message and confirm that a reply arrives in the original conversation.
 
-## License
+The skill format and six configuration-helper tests have passed. The newly packaged skill has not yet completed an independent onboarding test in another user's account.
 
-[MIT](LICENSE). Tencent-derived protocol code is credited in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). This independent project is not affiliated with or endorsed by Tencent, OpenAI, or the OpenClaw project.
+For the Cloudflare web-based deployment flow, use:
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/devinqiu888/weixin-agent-bridge)
+
+Further instructions: [Skill installation and usage](docs/SKILL.md) · [Deploy to Cloudflare](docs/DEPLOY.md) · [Manual deployment and OAuth setup](docs/INSTALL.md).
+
+## 5. Open-source license
+
+This project uses the [MIT License](LICENSE), permitting use, modification, and distribution subject to its terms.
+
+Tencent-derived protocol code is credited in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). This is an independent open-source project, not affiliated with or endorsed by Tencent, OpenAI, or the OpenClaw project. It has not been approved for an official plugin directory.
