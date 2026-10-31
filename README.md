@@ -6,7 +6,7 @@
 
 This project aims to use the existing ClawBot interface in the Weixin (WeChat) client, bridge it through Cloudflare, and connect to ChatGPT Pro's Dot service through MCP, enabling conversations with dot and file transfers directly within Weixin.
 
-It is designed for personal self-hosting: each user deploys the bridge in their own Cloudflare account and connects their own Weixin and ChatGPT accounts. **Basic text conversations are working; file transfer remains a planned feature.** Availability of Dot, plugins, and event capabilities depends on the features enabled for the user's account.
+It is designed for personal self-hosting: each user deploys the bridge in their own Cloudflare account and connects their own Weixin and ChatGPT accounts. **Basic text conversations and image transfer are working. Image transfer has been confirmed through user testing; support for other file types still needs further development.** Availability of Dot, plugins, and event capabilities depends on the features enabled for the user's account.
 
 ## 2. Project progress
 
@@ -17,6 +17,7 @@ Implemented:
 - Weixin QR-code binding and a ChatGPT OAuth connection.
 - Weixin text messages bridged through Cloudflare, automatically triggering dot through MCP Events.
 - Replies sent back to the original Weixin conversation through MCP tools.
+- Image transfer, confirmed through user testing.
 - Single-owner message deduplication, send-state tracking, and skill-assisted deployment.
 
 A live test on October 30, 2026 completed four automatically triggered text messages and successful replies, with the user confirming receipt in Weixin. Estimated event-to-send times were 34–95 seconds in that test; these execution-record estimates do not guarantee instant replies. See the [validation record](docs/VALIDATION.md).
@@ -24,7 +25,7 @@ A live test on October 30, 2026 completed four automatically triggered text mess
 Next priorities:
 
 - **Improve encryption and privacy management on the Worker side to prevent data exposure.** This includes application-level encryption of stored messages and files, key management and rotation, access controls, log redaction, and data retention and deletion.
-- **Implement file transfer.** Add file reception, delivery, access controls, and cleanup. A complete file-transfer path is not yet implemented.
+- **Improve image transfer and extend support to other file types.** Build on the user-tested image capability by validating formats, sizes, and reliability, improving access controls and cleanup, and adding other file types.
 - **Improve reliability and deployment usability.** Validate long-running subscription renewal, failure recovery, latency, and independent onboarding by other users.
 
 OAuth, management secrets, and callback signatures are already present. These protections do not mean application-level message encryption, end-to-end encryption, or a production security audit has been completed. The current version supports single-owner self-hosting only. Read the [security and data notes](docs/SECURITY.md) before use.
@@ -46,7 +47,7 @@ flowchart LR
 
 The bridge infrastructure runs entirely on Cloudflare, with no VPS, local daemon, or full OpenClaw installation required. ChatGPT performs model inference; the bridge does not call a model API or require an OpenAI API key. Cloudflare resources and ChatGPT usage may still incur costs.
 
-The diagram shows the currently validated text flow. The file-transfer flow will be documented when implemented.
+The diagram shows the text-message flow. Image transfer has been confirmed through user testing; its specific path and supported scope will be documented further.
 
 ## 4. Skill installation and one-click deployment
 
